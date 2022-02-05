@@ -61,75 +61,6 @@ Not Implemented
   - from [<Attention Is All You Need\>](https://arxiv.org/abs/1706.03762)
 
 
-##### Formatting tools
-
-
-```python
-# Formatting Tools
-
-%matplotlib inline
-
-import functools
-import math
-import matplotlib.pyplot as plt
-import numpy as np
-import torch
-import torch.nn as nn
-
-
-def plot_activation_function(function, wider=False, title_kwargs=None):
-    decorator_return = function
-    if isinstance(function, type):
-        name = function.__name__
-        if issubclass(function, torch.autograd.Function):  function = function.apply  # autograd Function
-        elif issubclass(function, nn.Module):  function = function()  # uninitialized class of Module
-        else:  assert False
-    else:
-        name = type(function).__name__
-        if isinstance(function, torch.autograd.Function):  function = function.apply  # autograd Function
-        elif not isinstance(function, nn.Module):  assert callable(function); name = function.__name__  # assert function, method, or built-in function
-    tick_major = np.arange(-6., 7., 2) if wider else np.arange(-4., 5., 1)
-    tick_minor = np.arange(-7., 8., 1) if wider else np.arange(-4., 5., 1)
-    x = torch.arange(tick_minor.min(), tick_minor.max(), 1e-3).requires_grad_()
-    y = function(x)
-    dydx = torch.autograd.grad(y.sum(), x, create_graph=True)[0]
-    d2ydx2 = torch.autograd.grad(dydx.sum(), x)[0]
-    fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(18, 6))
-    for ax, data, color, title_format in zip(
-        axes, (y, dydx, d2ydx2), "rbg", ("{} Function", "Derivative of {}", "Second Derivative of {}")
-    ):
-        ax.axvline(0., c='k', linewidth=1., alpha=0.7)
-        ax.axhline(0., c='k', linewidth=1., alpha=0.7)
-        ax.plot(x.detach().cpu().numpy(), data.detach().cpu().numpy(), c=color)
-        ax.set_xticks(tick_major)
-        ax.set_yticks(tick_major)
-        ax.set_xticks(tick_minor, minor=True)
-        ax.set_yticks(tick_minor, minor=True)
-        ax.grid(which="major",alpha=0.5)
-        ax.grid(which="minor",alpha=0.5)
-        if title_kwargs:
-            title_format += " (" + ", ".join("%s=%s" % (k, v) for k, v in title_kwargs.items()) + ")"
-        ax.set_title(title_format.format(name.replace("Function", "").replace("function", "")))
-    plt.show()
-    return decorator_return
-
-
-def plot_activation_module(draw_wider=False, **initkwargs):
-    def decorator(klass):
-        return plot_activation_function(klass(**initkwargs), draw_wider, initkwargs)
-    if isinstance(draw_wider, type) and issubclass(draw_wider, nn.Module):
-        klass = draw_wider
-        draw_wider = False
-        return decorator(klass)
-    assert isinstance(draw_wider, bool)
-    return decorator
-
-
-class ActivationModule(nn.Module):  # for subclass searching
-    pass
-
-```
-
 # Sigmoid
 
 $$\text{Sigmoid}(x) = \sigma(x) = \frac{1}{1 + \exp(-x)}$$
@@ -701,52 +632,6 @@ $$
 where $a$ is randomly sampled from uniform distribution
 $\mathcal{U}(\text{lower}, \text{upper})$.
 
-C++ Source in `Activation.cpp`
-
-```cpp
-template <typename scalar_t>
-inline void _rrelu_with_noise_train(
-    Tensor& output,
-    const Tensor& input,
-    const Tensor& noise,
-    const Scalar& lower_,
-    const Scalar& upper_,
-    c10::optional<Generator> generator) {
-  // ...
-  for (const auto i : c10::irange(input.numel())) {
-    if (input_data[i] <= 0) {
-      at::uniform_real_distribution<double> uniform(lower, upper);
-      const scalar_t r = (scalar_t)uniform(gen);
-      output_data[i] = input_data[i] * r;
-      noise_data[i] = r;  // save for backward
-    } else {
-      noise_data[i] = 1;  // save for backward
-      output_data[i] = input_data[i];
-    }
-  }
-  // ...
-}
-
-Tensor& rrelu_with_noise_out_cpu(const Tensor& self,
-    const Tensor& noise,
-    const Scalar& lower,
-    const Scalar& upper,
-    bool training,
-    c10::optional<Generator> generator,
-    Tensor& output) {
-  if (training) {
-    // ...
-    _rrelu_with_noise_train<scalar_t>(output, self.contiguous(), noise, lower, upper, generator);
-    // ...
-    return output;
-  } else {
-    // ...
-    auto negative = (lower_tensor + upper_tensor) / 2;
-    Scalar negative_slope = negative.item();
-    return at::leaky_relu_out(output, self, negative_slope);
-  }
-}
-```
 
 
 ```python
@@ -792,10 +677,9 @@ class RReLU(ActivationModule):  # Randomized ReLU
 
 $$\text{SELU}(x) = \text{scale} * (\max(0,x) + \min(0, \alpha * (\exp(x) - 1)))$$
 
-```cpp
-static const double SELU_ALPHA = 1.6732632423543772848170429916717;
-static const double SELU_SCALE = 1.0507009873554804934193349852946;
-```
+$$alpha = 1.6732632423543772848170429916717$$
+$$scale = 1.0507009873554804934193349852946$$
+
 
 
 ```python
@@ -822,22 +706,6 @@ class SELU(ActivationModule):  # Scaled ELU
 $$\text{GLU}(a, b)= a \otimes \sigma(b)$$
 $$\text{where }a\text{ is the first half of the input matrices and }b\text{ is the second half.}$$
 
-C++ Source in `Activation.cu`
-
-```cpp
-void glu_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16, iter.dtype(), "glu_cuda", [&]() {
-    using acc_t = at::acc_type<scalar_t, true>;
-    gpu_kernel(iter, [] GPU_LAMBDA (scalar_t a_, scalar_t b_) -> scalar_t {
-      const acc_t a = a_;
-      const acc_t b = b_;
-      const acc_t one = acc_t(1);
-      const acc_t sigmoid = one / (one + std::exp(-b));
-      return a * sigmoid;
-    });
-  });
-}
-```
 
 
 ```python

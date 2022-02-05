@@ -1,8 +1,21 @@
 [**Pytorch Activation Function Implementations**](./pytorch-activation-implementation.ipynb)
 
-In this notebook, almost **all activation module/functions in pytorch** (in `torch.nn.modules.activation` / `torch.nn.functional`) 1.9 as C/C++ source is implemented as python, except some special activation modules. (`MultiheadAttention` for transformers, Softmax-like activations, ReLU-like non-popular activations)
+```python
+...
+from .activation import Threshold, ReLU, Hardtanh, ReLU6, Sigmoid, Tanh, \
+    Softmax, Softmax2d, LogSoftmax, ELU, SELU, CELU, GELU, Hardshrink, LeakyReLU, LogSigmoid, \
+    Softplus, Softshrink, MultiheadAttention, PReLU, Softsign, Softmin, Tanhshrink, RReLU, GLU, \
+    Hardsigmoid, Hardswish, SiLU, Mish
+...
+from .adaptive import AdaptiveLogSoftmaxWithLoss
+...
+```
 
-Some back-propagations of activation are implemented as `torch.autograd.Function`. (use this as `Function.apply(tensor)`)
+Like given source code, there are 30 activation modules in pytorch.
+
+In this notebook, almost **all activation module/functions in pytorch** (in `torch.nn.modules.activation` / `torch.nn.functional`) 1.9 as C/C++ source is implemented as python, except `MultiheadAttention` for transformers, and `AdaptiveLogSoftmaxWithLoss`.
+
+Some back-propagations of activation are implemented as `torch.autograd.Function`.
 
 LaTeX formula will not appear properly in this page. See [`pytorch-activation-implementation.ipynb`](./pytorch-activation-implementation.ipynb) .
 
@@ -10,50 +23,134 @@ LaTeX formula will not appear properly in this page. See [`pytorch-activation-im
 
 Implemented
 <ul>
-    <li id="Contents-Sigmoid"><a href="#Sigmoid">Sigmoid</a></li>
-    <li id="Contents-Hardsigmoid"><a href="#Hardsigmoid">Hardsigmoid</a></li>
-    <li id="Contents-Tanh"><a href="#Tanh">Tanh</a></li>
-    <li id="Contents-Hardtanh"><a href="#Hardtanh">Hardtanh</a></li>
-    <li id="Contents-Softsign"><a href="#Softsign">Softsign</a></li>
-    <li id="Contents-ReLU"><a href="#ReLU">ReLU</a></li>
-    <li id="Contents-ReLU6"><a href="#ReLU6">ReLU6</a></li>
-    <li id="Contents-LeakyReLU"><a href="#LeakyReLU">LeakyReLU</a></li>
-    <li id="Contents-PReLU"><a href="#PReLU">PReLU</a></li>
-    <li id="Contents-Threshold"><a href="#Threshold">Threshold</a></li>
-    <li id="Contents-ELU"><a href="#ELU">ELU</a></li>
-    <li id="Contents-CELU"><a href="#CELU">CELU</a></li>
-    <li id="Contents-Softplus"><a href="#Softplus">Softplus</a></li>
-    <li id="Contents-LogSigmoid"><a href="#LogSigmoid">LogSigmoid</a></li>
-    <li id="Contents-Swish"><a href="#Swish">Swish</a></li>
-    <li id="Contents-Hardswish"><a href="#Hardswish">Hardswish</a></li>
-    <li id="Contents-Mish"><a href="#Mish">Mish</a></li>
-    <li id="Contents-GELU"><a href="#GELU">GELU</a></li>
-    <li id="Contents-HardShrink"><a href="#HardShrink">HardShrink</a></li>
-    <li id="Contents-SoftShrink"><a href="#SoftShrink">SoftShrink</a></li>
-    <li id="Contents-TanhShrink"><a href="#TanhShrink">TanhShrink</a></li>
+<li id="Contents-Sigmoid"><a href="https://pytorch.org/docs/stable/generated/torch.nn.Sigmoid.html">Sigmoid</a></li>
+<li id="Contents-Hardsigmoid"><a href="https://pytorch.org/docs/stable/generated/torch.nn.Hardsigmoid.html">Hardsigmoid</a></li>
+<li id="Contents-Tanh"><a href="https://pytorch.org/docs/stable/generated/torch.nn.Tanh.html">Tanh</a></li>
+<li id="Contents-Hardtanh"><a href="https://pytorch.org/docs/stable/generated/torch.nn.Hardtanh.html">Hardtanh</a></li>
+<li id="Contents-Softsign"><a href="https://pytorch.org/docs/stable/generated/torch.nn.Softsign.html">Softsign</a></li>
+<li id="Contents-ReLU"><a href="https://pytorch.org/docs/stable/generated/torch.nn.ReLU.html">ReLU</a></li>
+<li id="Contents-ReLU6"><a href="https://pytorch.org/docs/stable/generated/torch.nn.ReLU6.html">ReLU6</a></li>
+<li id="Contents-LeakyReLU"><a href="https://pytorch.org/docs/stable/generated/torch.nn.LeakyReLU.html">LeakyReLU</a></li>
+<li id="Contents-PReLU"><a href="https://pytorch.org/docs/stable/generated/torch.nn.PReLU.html">PReLU</a></li>
+<li id="Contents-Threshold"><a href="https://pytorch.org/docs/stable/generated/torch.nn.Threshold.html">Threshold</a></li>
+<li id="Contents-ELU"><a href="https://pytorch.org/docs/stable/generated/torch.nn.ELU.html">ELU</a></li>
+<li id="Contents-CELU"><a href="https://pytorch.org/docs/stable/generated/torch.nn.CELU.html">CELU</a></li>
+<li id="Contents-Softplus"><a href="https://pytorch.org/docs/stable/generated/torch.nn.Softplus.html">Softplus</a></li>
+<li id="Contents-LogSigmoid"><a href="https://pytorch.org/docs/stable/generated/torch.nn.LogSigmoid.html">LogSigmoid</a></li>
+<li id="Contents-Swish"><a href="https://pytorch.org/docs/stable/generated/torch.nn.SiLU.html">Swish</a></li>
+<li id="Contents-Hardswish"><a href="https://pytorch.org/docs/stable/generated/torch.nn.Hardswish.html">Hardswish</a></li>
+<li id="Contents-Mish"><a href="https://pytorch.org/docs/stable/generated/torch.nn.Mish.html">Mish</a></li>
+<li id="Contents-GELU"><a href="https://pytorch.org/docs/stable/generated/torch.nn.GELU.html">GELU</a></li>
+<li id="Contents-HardShrink"><a href="https://pytorch.org/docs/stable/generated/torch.nn.Hardshrink.html">Hardshrink</a></li>
+<li id="Contents-SoftShrink"><a href="https://pytorch.org/docs/stable/generated/torch.nn.Softshrink.html">Softshrink</a></li>
+<li id="Contents-TanhShrink"><a href="https://pytorch.org/docs/stable/generated/torch.nn.Tanhshrink.html">Tanhshrink</a></li>
+<li id="Contents-RReLU"><a href="https://pytorch.org/docs/stable/generated/torch.nn.RReLU.html">RReLU</a></li>
+<li id="Contents-SELU"><a href="https://pytorch.org/docs/stable/generated/torch.nn.SELU.html">SELU</a></li>
+<li id="Contents-GLU"><a href="https://pytorch.org/docs/stable/generated/torch.nn.GLU.html">GLU</a></li>
+<li id="Contents-Softmax"><a href="https://pytorch.org/docs/stable/generated/torch.nn.Softmax.html">Softmax</a> (<a href="https://pytorch.org/docs/stable/generated/torch.nn.Softmax2d.html">Softmax2d</a>) </li>
+<li id="Contents-Softmin"><a href="https://pytorch.org/docs/stable/generated/torch.nn.Softmin.html">Softmin</a></li>
+<li id="Contents-LogSoftmax"><a href="https://pytorch.org/docs/stable/generated/torch.nn.LogSoftmax.html">LogSoftmax</a></li>
 </ul>
 
 Not Implemented
-- RReLU [(Random Rectified Linear Unit)](https://pytorch.org/docs/stable/generated/torch.nn.RReLU.html) / SELU [(Scaled ELU)](https://pytorch.org/docs/stable/generated/torch.nn.SELU.html) / GLU [(Gated Linear Unit)](https://pytorch.org/docs/stable/generated/torch.nn.GLU.html)
-- Softmax / Softmin / LogSoftmax / Softmax2d / AdaptiveLogSoftmaxWithLoss
-- MultiheadAttention
+- <a href="https://pytorch.org/docs/stable/generated/torch.nn.AdaptiveLogSoftmaxWithLoss.html">AdaptiveLogSoftmaxWithLoss</a>
+  - from [<Efficient softmax approximation for GPUs\>](https://arxiv.org/abs/1609.04309) by Edouard Grave, Armand Joulin, Moustapha Cissé, David Grangier, and Hervé Jégou
+  - see [`torch.nn.modules.adaptive`](https://github.com/pytorch/pytorch/blob/master/torch/nn/modules/adaptive.py) (pure python implementation)
+- <a href="https://pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html">MultiheadAttention</a>
+  - used for Transformer
+  - from [<Attention Is All You Need\>](https://arxiv.org/abs/1706.03762)
 
 
-# [Sigmoid](#Contents-Sigmoid)
+##### Formatting tools
 
-$$ \text{Sigmoid}(x) = \sigma(x) = \frac{1}{1 + \exp(-x)} $$
 
 ```python
-class Sigmoid(nn.Module):
+# Formatting Tools
+
+%matplotlib inline
+
+import functools
+import math
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
+import torch.nn as nn
+
+
+def plot_activation_function(function, wider=False, title_kwargs=None):
+    decorator_return = function
+    if isinstance(function, type):
+        name = function.__name__
+        if issubclass(function, torch.autograd.Function):  function = function.apply  # autograd Function
+        elif issubclass(function, nn.Module):  function = function()  # uninitialized class of Module
+        else:  assert False
+    else:
+        name = type(function).__name__
+        if isinstance(function, torch.autograd.Function):  function = function.apply  # autograd Function
+        elif not isinstance(function, nn.Module):  assert callable(function); name = function.__name__  # assert function, method, or built-in function
+    tick_major = np.arange(-6., 7., 2) if wider else np.arange(-4., 5., 1)
+    tick_minor = np.arange(-7., 8., 1) if wider else np.arange(-4., 5., 1)
+    x = torch.arange(tick_minor.min(), tick_minor.max(), 1e-3).requires_grad_()
+    y = function(x)
+    dydx = torch.autograd.grad(y.sum(), x, create_graph=True)[0]
+    d2ydx2 = torch.autograd.grad(dydx.sum(), x)[0]
+    fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(18, 6))
+    for ax, data, color, title_format in zip(
+        axes, (y, dydx, d2ydx2), "rbg", ("{} Function", "Derivative of {}", "Second Derivative of {}")
+    ):
+        ax.axvline(0., c='k', linewidth=1., alpha=0.7)
+        ax.axhline(0., c='k', linewidth=1., alpha=0.7)
+        ax.plot(x.detach().cpu().numpy(), data.detach().cpu().numpy(), c=color)
+        ax.set_xticks(tick_major)
+        ax.set_yticks(tick_major)
+        ax.set_xticks(tick_minor, minor=True)
+        ax.set_yticks(tick_minor, minor=True)
+        ax.grid(which="major",alpha=0.5)
+        ax.grid(which="minor",alpha=0.5)
+        if title_kwargs:
+            title_format += " (" + ", ".join("%s=%s" % (k, v) for k, v in title_kwargs.items()) + ")"
+        ax.set_title(title_format.format(name.replace("Function", "").replace("function", "")))
+    plt.show()
+    return decorator_return
+
+
+def plot_activation_module(draw_wider=False, **initkwargs):
+    def decorator(klass):
+        return plot_activation_function(klass(**initkwargs), draw_wider, initkwargs)
+    if isinstance(draw_wider, type) and issubclass(draw_wider, nn.Module):
+        klass = draw_wider
+        draw_wider = False
+        return decorator(klass)
+    assert isinstance(draw_wider, bool)
+    return decorator
+
+
+class ActivationModule(nn.Module):  # for subclass searching
+    pass
+
+```
+
+# Sigmoid
+
+$$\text{Sigmoid}(x) = \sigma(x) = \frac{1}{1 + \exp(-x)}$$
+
+
+```python
+@plot_activation_module()
+class Sigmoid(ActivationModule):
 
     def forward(self, x):
         return 1. / (1. + torch.exp(-x))
 
 ```
 
-![Fig-Sigmoid](./assets/Sigmoid.png)
 
-# [Hardsigmoid](#Contents-Hardsigmoid)
+    
+![png](./assets/output_4_0.png)
+    
+
+
+# Hardsigmoid
 
 $$
 \text{Hardsigmoid}(x) = \begin{cases}
@@ -63,22 +160,32 @@ $$
 \end{cases}
 $$
 
-```python
-class Hardsigmoid(nn.Module):
 
-    def forward(self, x):
-        return torch.clamp(x / 6. + 0.5, 0., 1.)
+```python
+@plot_activation_module()
+class Hardsigmoid(ActivationModule):
+
+    @staticmethod
+    def forward(x):
+        x = x.pow(1.)  # TODO: remove this line (hack for second derivative)
+        return (x / 6. + .5).clamp(0., 1.)
 
 ```
 
-![Fig-Hardsigmoid](./assets/Hardsigmoid.png)
 
-# [Tanh](#Contents-Tanh)
+    
+![png](./assets/output_7_0.png)
+
+
+
+# Tanh
 
 $$\text{Tanh}(x) = \tanh(x) = \frac{\exp(x) - \exp(-x)} {\exp(x) + \exp(-x)}$$
 
+
 ```python
-class Tanh(nn.Module):
+@plot_activation_module()  # basic activation for RNN / LSTM
+class Tanh(ActivationModule):
 
     def forward(self, x):
         # return torch.sigmoid(2. * x) * 2. - 1.
@@ -88,9 +195,13 @@ class Tanh(nn.Module):
 
 ```
 
-![Fig-Tanh](./assets/Tanh.png)
 
-# [Hardtanh](#Contents-Hardtanh)
+    
+![png](./assets/output_10_0.png)
+    
+
+
+# Hardtanh
 
 $$
 \text{HardTanh}(x) = \begin{cases}
@@ -100,77 +211,111 @@ $$
 \end{cases}
 $$
 
+
 ```python
-class Hardtanh(nn.Module):
+@plot_activation_module()
+class Hardtanh(ActivationModule):
 
     def forward(self, x):
-        return torch.clamp(x, -1., 1.)
+        x = x.pow(1.)  # TODO: remove this line (hack for second derivative)
+        return x.clamp(-1., 1.)
 
 ```
 
-![Fig-Hardtanh](./assets/Hardtanh.png)
 
-# [Softsign](#Contents-Softsign)
+    
+![png](./assets/output_13_0.png)
+    
+
+
+# Softsign
 
 $$\text{SoftSign}(x) = \frac{x}{ 1 + |x|}$$
 
+
 ```python
-class Softsign(nn.Module):
+@plot_activation_module()
+class Softsign(ActivationModule):
 
     def forward(self, x):
         return x / (1 + torch.abs(x))
 
 ```
 
-![Fig-Softsign](./assets/Softsign.png)
 
-# [ReLU](#Contents-ReLU)
+    
+![png](./assets/output_15_0.png)
+    
+
+
+# ReLU
 
 $$\text{ReLU}(x) = (x)^+ = \max(0, x)$$
 
+
 ```python
-class ReLU(nn.Module):  # Rectified Linear Unit
+@plot_activation_module()
+class ReLU(ActivationModule):  # Rectified Linear Unit
     
     def forward(self, x):  # zeros_like: zero-filled tensor which has same shape with x
-        return torch.maximum(x, torch.zeros_like(x))
+        x = x.pow(1.)  # TODO: remove this line (hack for second derivative)
+        return x.clamp(0.)
     
 ```
 
-![Fig-ReLU](./assets/ReLU.png)
 
-# [ReLU6](#Contents-ReLU6)
+    
+![png](./assets/output_18_0.png)
+    
+
+
+# ReLU6
 
 $$\text{ReLU6}(x) = \min(\max(0,x), 6)$$
 
+
 ```python
-class ReLU6(nn.Module):  # Rectified Linear Unit
+@plot_activation_module(True)
+class ReLU6(ActivationModule):  # Rectified Linear Unit
     
     def forward(self, x):
+        x = x.pow(1.)  # TODO: remove this line (hack for second derivative)
         return torch.clamp(x, 0., 6.)
     
 ```
 
-![Fig-ReLU6](./assets/ReLU6.png)
 
-# [LeakyReLU](#Contents-LeakyReLU)
+    
+![png](./assets/output_21_0.png)
+    
+
+
+# LeakyReLU
 
 $$\text{LeakyReLU}(x) = \max(0, x) + \text{negative_slope} * \min(0, x)$$
 
+
 ```python
-class LeakyReLU(nn.Moudule):  # Leaky - Rectified Linear Unit
+@plot_activation_module(negative_slope=1e-1)
+class LeakyReLU(ActivationModule):  # Leaky - Rectified Linear Unit
     
     def __init__(self, negative_slope=1e-2):
         super().__init__()
         self.negative_slope = negative_slope
     
     def forward(self, x):
+        x = x.pow(1.)  # TODO: remove this line (hack for second derivative)
         return torch.where(x >= 0., x, x * self.negative_slope)
 
 ```
 
-![Fig-LeakyReLU](./assets/LeakyReLU.png)
 
-# [PReLU](#Contents-PReLU)
+    
+![png](./assets/output_23_0.png)
+    
+
+
+# PReLU
 
 $$
 \text{PReLU}(x) =
@@ -182,21 +327,28 @@ $$
 
 $$\text{Here } a \text{ is a learnable parameter.}$$
 
+
 ```python
-class PReLU(nn.Module):  # Parametric Rectified Linear Unit
+@plot_activation_module()
+class PReLU(ActivationModule):  # Parametric Rectified Linear Unit
     
     def __init__(self, a=.25):
         super().__init__()
         self.weight = nn.Parameter(torch.tensor(a))
     
     def forward(self, x):
+        x = x.pow(1.)  # TODO: remove this line (hack for second derivative)
         return torch.where(x >= 0., x, x * self.weight)
     
 ```
 
-![Fig-PReLU](./assets/PReLU.png)
 
-# [Threshold](#Contents-Threshold)
+    
+![png](./assets/output_26_0.png)
+    
+
+
+# Threshold
 
 $$
 y =
@@ -206,8 +358,10 @@ x, &\text{ if } x > \text{threshold} \\
 \end{cases}
 $$
 
+
 ```python
-class Threshold(nn.Module):
+@plot_activation_module(threshold=1., value=0.)  # ThresholdReLU: value=0.
+class Threshold(ActivationModule):
     
     def __init__(self, threshold=1., value=0.):
         super().__init__()
@@ -215,13 +369,18 @@ class Threshold(nn.Module):
         self.value = value
     
     def forward(self, x):
-        return torch.where(x >= self.threshold, x, torch.zeros_like(x).fill_(self.value))
-    
+        x = x.pow(1.)  # TODO: remove this line (hack for second derivative)
+        return x.masked_fill(x <= self.threshold, self.value)
+
 ```
 
-![Fig-Threshold](./assets/Threshold.png)
 
-# [ELU](#Contents-ELU)
+    
+![png](./assets/output_28_0.png)
+    
+
+
+# ELU
 
 $$
 \text{ELU}(x) = \begin{cases}
@@ -230,26 +389,34 @@ x, & \text{ if } x > 0\\
 \end{cases}
 $$
 
+
 ```python
-class ELU(nn.Module):  # Exponential Linear Unit
+@plot_activation_module(alpha=.9)
+class ELU(ActivationModule):  # Exponential Linear Unit
     
     def __init__(self, alpha=1.):
         super().__init__()
         self.alpha = alpha
     
     def forward(self, x):
-        return torch.where(x >= 0., x, (x.exp() - 1.) * self.alpha)
+        return torch.where(x >= 0., x, (torch.exp(x) - 1.) * self.alpha)
     
 ```
 
-![Fig-ELU](./assets/ELU.png)
 
-# [CELU](#Contents-CELU)
+    
+![png](./assets/output_30_0.png)
+    
+
+
+# CELU
 
 $$\text{CELU}(x) = \max(0,x) + \min(0, \alpha * (\exp(x/\alpha) - 1))$$
 
+
 ```python
-class CELU(nn.Module):  # Continuously Differentiable ELU
+@plot_activation_module(alpha=.9)
+class CELU(ActivationModule):  # Continuously differentiable ELU
     
     def __init__(self, alpha=1.):
         super().__init__()
@@ -260,14 +427,20 @@ class CELU(nn.Module):  # Continuously Differentiable ELU
 
 ```
 
-![Fig-CELU](./assets/CELU.png)
 
-# [Softplus](#Contents-Softplus)
+    
+![png](./assets/output_33_0.png)
+    
+
+
+# Softplus
 
 $$\text{Softplus}(x) = \frac{1}{\beta} * \log(1 + \exp(\beta * x))$$
 
+
 ```python
-class Softplus(nn.Module):
+@plot_activation_module()  # Derivative becomes sigmoid
+class Softplus(ActivationModule):
     
     def __init__(self, beta=1.):
         super().__init__()
@@ -278,28 +451,40 @@ class Softplus(nn.Module):
     
 ```
 
-![Fig-Softplus](./assets/Softplus.png)
 
-# [LogSigmoid](#Contents-LogSigmoid)
+    
+![png](./assets/output_35_0.png)
+    
+
+
+# LogSigmoid
 
 $$\text{LogSigmoid}(x) = \log\left(\frac{ 1 }{ 1 + \exp(-x)}\right)$$
 
+
 ```python
-class LogSigmoid(nn.Module):
+@plot_activation_module()
+class LogSigmoid(ActivationModule):
     
     def forward(self, x):
         return x.sigmoid().log()
     
 ```
 
-![Fig-LogSigmoid](./assets/LogSigmoid.png)
 
-# [Swish](#Contents-Swish)
+    
+![png](./assets/output_38_0.png)
+    
+
+
+# Swish
 
 $$\text{Swish}(x) = \text{silu}(x) = x * \sigma(x), \text{where } \sigma(x) \text{ is the logistic sigmoid.}$$
 
+
 ```python
-class Swish(nn.Module):  # same as nn.SiLU: Sigmoid Linear Unit
+@plot_activation_module()  # activation for MobileNet / EfficientNet
+class Swish(ActivationModule):  # same as nn.SiLU: Sigmoid Linear Unit
     
     def __init__(self, alpha=1.):
         super().__init__()
@@ -307,12 +492,16 @@ class Swish(nn.Module):  # same as nn.SiLU: Sigmoid Linear Unit
     
     def forward(self, x):
         return x * torch.sigmoid(x * self.alpha)
-    
+
 ```
 
-![Fig-Swish](./assets/Swish.png)
 
-# [Hardswish](#Contents-Hardswish)
+    
+![png](./assets/output_40_0.png)
+    
+
+
+# Hardswish
 
 $$
 \text{Hardswish}(x) = \begin{cases}
@@ -322,8 +511,10 @@ $$
 \end{cases}
 $$
 
+
 ```python
-class Hardswish(nn.Module):  # mobilenetv3
+@plot_activation_module()
+class Hardswish(ActivationModule):  # mobilenetv3
     
     def forward(self, x):
         return torch.where(
@@ -334,26 +525,37 @@ class Hardswish(nn.Module):  # mobilenetv3
     
 ```
 
-![Fig-Hardswish](./assets/Hardswish.png)
 
-# [Mish](#Contents-Mish)
+    
+![png](./assets/output_43_0.png)
+    
 
-Mish is not implemented in pytorch.
+
+# Mish
+
 
 $$\text{Mish}(x) = x * \text{Tanh}( \text{Softplus}(x) )$$
 
+
+
 ```python
-class Mish(nn.Module):
+@plot_activation_module()
+class Mish(ActivationModule):
     
     def forward(self, x):
         softplus_x = torch.log(torch.exp(x) + 1.)
         return x * torch.tanh(softplus_x)
 
+# see also: https://hongl.tistory.com/213
 ```
 
-![Fig-Mish](./assets/Mish.png)
 
-# [GELU](#Contents-GELU)
+    
+![png](./assets/output_45_0.png)
+    
+
+
+# GELU
 
 $$
 \text{GELU}(x) = x * \Phi(x)
@@ -363,18 +565,33 @@ $$
 \text{where } \Phi(x) \text{ is the Cumulative Distribution Function for Gaussian Distribution.}
 $$
 
-```python
-class GELU(nn.Module):  # Gaussian Error Linear Unit
-    
-    def forward(self, x):
-        phi_x = (torch.erf(x / math.sqrt(2.)) + 1.) / 2.
-        return x * phi_x
+With Error Function, CDF can be reduced to:
 
+$$ \Phi(x) = \frac{1}{2} \left[ \text{erf}\left( \frac{x}{\sqrt 2} \right) + 1 \right]$$
+
+
+```python
+@plot_activation_module()
+class GELU(ActivationModule):  # Gaussian Error Linear Unit
+
+    def gaussian_cdf_function(self, x):
+        sqrt_two = math.sqrt(2.)
+        phi_x = (torch.erf(x / sqrt_two) + 1.) / 2.
+        return phi_x
+
+    def forward(self, x):
+        return x * self.gaussian_cdf_function(x)
+
+# see also: https://hongl.tistory.com/236
 ```
 
-![Fig-GELU](./assets/GELU.png)
 
-# [HardShrink](#Contents-HardShrink)
+    
+![png](./assets/output_47_0.png)
+    
+
+
+# Hardshrink
 
 $$
 \text{HardShrink}(x) =
@@ -385,26 +602,31 @@ x, & \text{ if } x < -\lambda \\
 \end{cases}
 $$
 
-```python
 
-class HardShrink(nn.Module):
+```python
+@plot_activation_module()
+class Hardshrink(ActivationModule):
     
     def __init__(self, lambd=.5):
         super().__init__()
         self.lambd = lambd
     
     def forward(self, x):
-        return torch.where(
+        x = x.pow(1.)
+        return x.where(
             torch.logical_or(x > self.lambd, x < -self.lambd),
-            x,
             torch.zeros_like(x)  # same as 0
         )
 
 ```
 
-![Fig-HardShrink](./assets/HardShrink.png)
 
-# [SoftShrink](#Contents-SoftShrink)
+    
+![png](./assets/output_49_0.png)
+    
+
+
+# Softshrink
 
 $$
 \text{SoftShrinkage}(x) =
@@ -415,14 +637,17 @@ x + \lambda, & \text{ if } x < -\lambda \\
 \end{cases}
 $$
 
+
 ```python
-class SoftShrink(nn.Module):
+@plot_activation_module()
+class Softshrink(ActivationModule):
     
     def __init__(self, lambd=.5):
         super().__init__()
         self.lambd = lambd
     
     def forward(self, x):
+        x = x.pow(1.)
         return torch.where(
             x > self.lambd, # 1st condition
             x - self.lambd,
@@ -435,20 +660,261 @@ class SoftShrink(nn.Module):
 
 ```
 
-![Fig-SoftShrink](./assets/SoftShrink.png)
 
-# [TanhShrink](#Contents-TanhShrink)
+    
+![png](./assets/output_51_0.png)
+    
+
+
+# Tanhshrink
 
 $$
 \text{Tanhshrink}(x) = x - \tanh(x)
 $$
 
+
 ```python
-class TanhShrink(nn.Module):
+@plot_activation_module()
+class Tanhshrink(ActivationModule):
     
     def forward(self, x):
         return x - torch.tanh(x)
 
 ```
 
-![Fig-TanhShrink](./assets/TanhShrink.png)
+
+    
+![png](./assets/output_53_0.png)
+    
+
+
+# RRelu
+
+$$
+        \text{RReLU}(x) =
+        \begin{cases}
+            x & \text{if } x \geq 0 \\
+            ax & \text{ otherwise }
+        \end{cases}
+$$
+
+where $a$ is randomly sampled from uniform distribution
+$\mathcal{U}(\text{lower}, \text{upper})$.
+
+C++ Source in `Activation.cpp`
+
+```cpp
+template <typename scalar_t>
+inline void _rrelu_with_noise_train(
+    Tensor& output,
+    const Tensor& input,
+    const Tensor& noise,
+    const Scalar& lower_,
+    const Scalar& upper_,
+    c10::optional<Generator> generator) {
+  // ...
+  for (const auto i : c10::irange(input.numel())) {
+    if (input_data[i] <= 0) {
+      at::uniform_real_distribution<double> uniform(lower, upper);
+      const scalar_t r = (scalar_t)uniform(gen);
+      output_data[i] = input_data[i] * r;
+      noise_data[i] = r;  // save for backward
+    } else {
+      noise_data[i] = 1;  // save for backward
+      output_data[i] = input_data[i];
+    }
+  }
+  // ...
+}
+
+Tensor& rrelu_with_noise_out_cpu(const Tensor& self,
+    const Tensor& noise,
+    const Scalar& lower,
+    const Scalar& upper,
+    bool training,
+    c10::optional<Generator> generator,
+    Tensor& output) {
+  if (training) {
+    // ...
+    _rrelu_with_noise_train<scalar_t>(output, self.contiguous(), noise, lower, upper, generator);
+    // ...
+    return output;
+  } else {
+    // ...
+    auto negative = (lower_tensor + upper_tensor) / 2;
+    Scalar negative_slope = negative.item();
+    return at::leaky_relu_out(output, self, negative_slope);
+  }
+}
+```
+
+
+```python
+# explicitly add bounds to plot
+@plot_activation_module(lower=1. / 8, upper=round(1. / 3, 3))
+class RReLU(ActivationModule):  # Randomized ReLU
+    
+    def __init__(
+        self,
+        lower=1. / 8,
+        upper=1. / 3
+    ):
+        super().__init__()
+        self.lower = lower
+        self.upper = upper
+
+    def forward(self, input):
+        input = input.pow(1.)  # hack for second derivative
+        if self.training:
+            return torch.where(
+                input > 0., 
+                input, 
+                # rand_like: [0, 1) -> make it as distribution of [lower ,upper)
+                input * (torch.rand_like(input) * (self.upper - self.lower) + self.lower)
+            )
+        else:
+            return self.leaky_relu(input)
+
+    def leaky_relu(self, input):
+        negative_slope = (self.lower + self.upper) / 2
+        return input.where(input < 0., input * negative_slope)
+
+```
+
+
+    
+![png](./assets/output_55_0.png)
+    
+
+
+# SELU
+
+
+$$\text{SELU}(x) = \text{scale} * (\max(0,x) + \min(0, \alpha * (\exp(x) - 1)))$$
+
+```cpp
+static const double SELU_ALPHA = 1.6732632423543772848170429916717;
+static const double SELU_SCALE = 1.0507009873554804934193349852946;
+```
+
+
+```python
+@plot_activation_module()
+class SELU(ActivationModule):  # Scaled ELU
+
+    # Make it as final
+    alpha = property(lambda self: 1.6732632423543772848170429916717)
+    scale = property(lambda self: 1.0507009873554804934193349852946)
+    
+    def forward(self, x):
+        return torch.where(x >= 0., x, (torch.exp(x) - 1.) * self.alpha) * self.scale
+
+```
+
+
+    
+![png](./assets/output_57_0.png)
+    
+
+
+# GLU
+
+$$\text{GLU}(a, b)= a \otimes \sigma(b)$$
+$$\text{where }a\text{ is the first half of the input matrices and }b\text{ is the second half.}$$
+
+C++ Source in `Activation.cu`
+
+```cpp
+void glu_kernel(TensorIteratorBase& iter) {
+  AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16, iter.dtype(), "glu_cuda", [&]() {
+    using acc_t = at::acc_type<scalar_t, true>;
+    gpu_kernel(iter, [] GPU_LAMBDA (scalar_t a_, scalar_t b_) -> scalar_t {
+      const acc_t a = a_;
+      const acc_t b = b_;
+      const acc_t one = acc_t(1);
+      const acc_t sigmoid = one / (one + std::exp(-b));
+      return a * sigmoid;
+    });
+  });
+}
+```
+
+
+```python
+class GLU(ActivationModule):  # Gated Linear Unit
+    
+    def __init__(self, dim=-1):
+        super().__init__()
+        self.dim = dim
+
+    def forward(self, input):
+        a, b = input.chunk(2, dim=self.dim)
+        return a * b.sigmoid()
+
+```
+
+
+# Softmax
+
+$$\text{Softmax}(x_{i}) = \frac{\exp(x_i)}{\sum_j \exp(x_j)}$$
+
+
+```python
+class Softmax(ActivationModule):
+
+    # Implicit Inference of Dim
+    _get_softmax_dim = staticmethod(lambda ndim: 0 if ndim in (0, 1, 3) else 1)
+    
+    def __init__(self, dim=None):
+        super().__init__()
+        self.dim = dim
+
+    def forward(self, input):
+        dim = self.dim
+        if dim is None:
+            dim = self._get_softmax_dim(input.ndim)
+        input = input - input.amin(dim).unsqueeze(dim)
+        input_exp = input.exp()
+        return input_exp / input_exp.sum(dim).unsqueeze(dim)
+
+```
+
+
+```python
+class Softmax2d(Softmax, ActivationModule):  # TODO: remove multiple inheritance due to subclass searching
+
+    def __init__(self):
+        super().__init__(dim=1)
+
+    def forward(self, input):
+        assert input.ndim == 4, 'Softmax2d requires a 4D tensor as input'
+        return super().forward(input)
+
+```
+
+
+# Softmin
+
+$$\text{Softmin}(x_{i}) = \frac{\exp(-x_i)}{\sum_j \exp(-x_j)}$$
+
+
+```python
+class Softmin(Softmax, ActivationModule):
+
+    def forward(self, input):
+        return super().forward(-input)
+
+```
+
+# LogSoftmax
+
+$$\text{LogSoftmax}(x_{i}) = \log\left(\frac{\exp(x_i) }{ \sum_j \exp(x_j)} \right)$$
+
+
+```python
+class LogSoftmax(Softmax, ActivationModule):
+
+    def forward(self, input):
+        return super().forward(input).log()
+
+```
